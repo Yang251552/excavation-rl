@@ -1,0 +1,28 @@
+# Core dependencies
+torch>=2.1.0
+numpy>=1.24.0
+pyyaml>=6.0
+
+# Isaac Lab and Isaac Sim are installed separately via NVIDIA's installer
+# See: https://isaac-sim.github.io/IsaacLab/main/source/setup/installation.html
+
+# rsl_rl: install from source
+# git clone https://github.com/leggedrobotics/rsl_rl.git
+# cd rsl_rl && pip install -e .
+
+# NVIDIA Warp: install from pip or bundled with Isaac Sim
+# pip install warp-lang
+
+# Logging and visualization
+tensorboard>=2.14.0
+wandb>=0.16.0
+matplotlib>=3.7.0
+
+# Video recording
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.8
+
+# Development
+pytest>=7.0
+black>=23.0
+isort>=5.12

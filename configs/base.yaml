@@ -1,0 +1,133 @@
+# Base configuration for excavation RL
+# Override specific fields in experiment-specific configs
+
+seed: 42
+device: "cuda:0"
+sim_dt: 0.01667  # 1/60
+
+scene:
+  num_envs: 4096
+  env_spacing: 2.5
+  arm_type: "franka"
+  robot_base_pos: [0.0, 0.0, 0.0]
+  soil_num_particles: 500
+  soil_heap_center: [0.4, 0.0, 0.0]
+  soil_heap_radius: 0.2
+  soil_heap_height: 0.25
+  soil_heap_shape: "cone"
+  target_center: [-0.4, 0.0, 0.0]
+  target_half_extent: [0.15, 0.15, 0.3]
+  use_rigid_body_proxy: false
+
+observation:
+  include_joint_pos: true
+  include_joint_vel: true
+  include_ee_pos: true
+  include_ee_orient: true
+  include_ee_lin_vel: true
+  include_ee_ang_vel: true
+  include_bucket_load: true
+  include_bucket_contact_force: true
+  soil_obs_mode: "height_map"
+  height_map_resolution: 5
+  height_map_size: 1.0
+  include_target_pos: true
+  include_previous_action: true
+  observation_noise_std: 0.0
+  normalize_obs: true
+  clip_obs: 10.0
+
+action:
+  mode: "joint_position"
+  action_scale: 0.1
+  max_action_rate: 1.0
+  action_noise_std: 0.0
+  action_delay_steps: 0
+
+reward:
+  weights:
+    soil_transfer: 10.0
+    approach: 1.0
+    bucket_load: 2.0
+    transport: 3.0
+    action_smoothness: -0.05
+    joint_limit: -1.0
+    time_penalty: -0.01
+    collision: -5.0
+    approach_alpha: 5.0
+  success_bonus: 50.0
+  success_threshold: 0.8
+
+termination:
+  max_episode_length: 500
+  success_soil_ratio: 0.8
+  check_joint_limits: true
+  check_bucket_ground_penetration: true
+  ground_penetration_threshold: -0.02
+  check_base_displacement: true
+  base_displacement_threshold: 0.01
+
+domain_randomization:
+  enabled: false
+  soil_density_range: [1400.0, 2200.0]
+  soil_friction_range: [0.3, 0.9]
+  soil_restitution_range: [0.0, 0.2]
+  soil_cohesion_range: [0.0, 500.0]
+  heap_height_range: [0.15, 0.35]
+  heap_radius_range: [0.2, 0.4]
+  heap_position_offset_range: [-0.05, 0.05]
+  joint_friction_scale_range: [0.8, 1.2]
+  payload_mass_range: [0.0, 0.5]
+  action_delay_range: [0, 2]
+  action_noise_std_range: [0.0, 0.02]
+  observation_noise_std: 0.01
+
+curriculum:
+  enabled: true
+  stages:
+    - name: "stage_1_easy"
+      entry_step: 0
+      num_particles: 200
+      max_heap_distance: 0.3
+      dr_enabled: false
+      approach_weight: 2.0
+      transfer_weight: 10.0
+    - name: "stage_2_medium"
+      entry_step: 200000
+      num_particles: 500
+      max_heap_distance: 0.5
+      dr_enabled: true
+      approach_weight: 0.5
+      transfer_weight: 10.0
+    - name: "stage_3_hard"
+      entry_step: 600000
+      num_particles: 1000
+      max_heap_distance: 0.8
+      dr_enabled: true
+      approach_weight: 0.1
+      transfer_weight: 15.0
+
+ppo:
+  num_envs: 4096
+  num_steps_per_env: 24
+  max_iterations: 1500
+  clip_param: 0.2
+  gamma: 0.99
+  lam: 0.95
+  num_epochs: 5
+  num_mini_batches: 4
+  learning_rate: 0.0003
+  schedule: "adaptive"
+  desired_kl: 0.01
+  value_loss_coeff: 1.0
+  use_clipped_value_loss: true
+  entropy_coeff: 0.01
+  max_grad_norm: 1.0
+  network:
+    policy_hidden_dims: [256, 256, 128]
+    value_hidden_dims: [256, 256, 128]
+    policy_activation: "elu"
+    value_activation: "elu"
+    init_noise_std: 1.0
+  log_interval: 10
+  save_interval: 100

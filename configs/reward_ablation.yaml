@@ -1,0 +1,60 @@
+# Reward ablation experiment configurations
+# Each variant modifies reward weights relative to base.yaml
+
+variants:
+  full:
+    description: "Full reward function (baseline)"
+    reward:
+      weights:
+        soil_transfer: 10.0
+        approach: 1.0
+        bucket_load: 2.0
+        transport: 3.0
+        action_smoothness: -0.05
+        joint_limit: -1.0
+        time_penalty: -0.01
+        collision: -5.0
+
+  no_approach:
+    description: "Remove approach guidance reward"
+    reward:
+      weights:
+        soil_transfer: 10.0
+        approach: 0.0  # disabled
+        bucket_load: 2.0
+        transport: 3.0
+        action_smoothness: -0.05
+        joint_limit: -1.0
+        time_penalty: -0.01
+        collision: -5.0
+
+  no_load:
+    description: "Remove bucket load reward"
+    reward:
+      weights:
+        soil_transfer: 10.0
+        approach: 1.0
+        bucket_load: 0.0  # disabled
+        transport: 3.0
+        action_smoothness: -0.05
+        joint_limit: -1.0
+        time_penalty: -0.01
+        collision: -5.0
+
+  sparse_only:
+    description: "Only soil transfer reward (sparse)"
+    reward:
+      weights:
+        soil_transfer: 10.0
+        approach: 0.0
+        bucket_load: 0.0
+        transport: 0.0
+        action_smoothness: 0.0
+        joint_limit: -1.0
+        time_penalty: 0.0
+        collision: -5.0
+
+# Expected ranking: full > no_approach ≈ no_load >> sparse_only
+expected_ranking: ["full", "no_approach", "no_load", "sparse_only"]
+seeds: [42, 123, 456]
+max_iterations: 1000
